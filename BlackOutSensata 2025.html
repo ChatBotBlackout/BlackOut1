@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot Show Down</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+    .chatbox { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .message { margin-bottom: 15px; }
+    .bot { color: #333; font-weight: bold; }
+    .user { color: #0066cc; margin-top: 5px; }
+    .buttons button, #download-log { margin: 5px; padding: 10px 15px; border: none; border-radius: 5px; background: #0066cc; color: white; cursor: pointer; }
+    .buttons button:hover, #download-log:hover { background: #004999; }
+    #history { margin-top: 20px; font-size: 0.9em; color: #666; }
+    #input-container { display: flex; margin-bottom: 10px; }
+    #input-container input { padding: 10px; width: 80%; margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <div class="chatbox">
+    <div id="chat"></div>
+    <div id="input-container">
+      <input type="text" id="company-name" placeholder="Enter the company name" />
+      <button id="submit-name">Submit</button>
+    </div>
+    <div class="buttons" id="question-buttons"></div>
+    <div id="history" style="display: none;">
+      <strong>History:</strong>
+      <ul id="log"></ul>
+      <button id="download-log">Download History</button>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const buttons = document.getElementById('question-buttons');
+    const log = document.getElementById('log');
+    const downloadBtn = document.getElementById('download-log');
+    const submitNameBtn = document.getElementById('submit-name');
+    const companyNameInput = document.getElementById('company-name');
+    
+    const responses = {
+      'When will the system be restored?': 'Our technical team is currently addressing the issue with the highest priority. We will notify you as soon as we have any significant updates.',
+      'Is anyone working on this right now?': 'Yes, we are actively working on it. The team is focused on restoring operations as quickly as possible.',
+      'Which processes are affected?': 'We are experiencing an interruption in certain system functionalities. We are closely monitoring each impact.',
+      'Can I send orders through another method?': 'We are evaluating options to minimize the impact. We will notify you if alternative channels are needed.',
+      'Will my deliveries be delayed?': 'We are doing everything possible to ensure operations continue smoothly. If any order is affected, we will contact you directly.',
+      'Does this affect everyone or just me?': 'This is a general system issue. If we notice any additional issues with your account, we will notify you.',
+      'How will we be kept informed?': 'We will provide updates through this channel as soon as we have new information.',
+      'What was the cause?': 'The situation is under technical analysis. Our priority right now is restoring the service.',
+      'Has this happened before?': 'We continuously monitor the system to prevent such issues. Immediate action is being taken.',
+      'What will you do to prevent it from happening again?': 'After resolving the issue, we will apply necessary improvements to prevent recurrence.',
+      'Can you send me a report or evidence when it is resolved?': 'Yes, we can provide reports for affected orders once the system is restored.',
+      'Official Communication - April 9th 2025': `Subject: Sensata Ransomware Incident
+Sensata Technologies
+529 Pleasant Street
+Attleboro, MA 02703
+www.sensata.com
+
+Dear valued customers,
+
+Sensata Technologies recently identified and is addressing a ransomware incident that has encrypted certain devices in our network and has temporarily disrupted our production capabilities.
+
+Upon identifying the incident, we immediately implemented our response protocols, activated containment measures, including proactively taking our network offline, and launched an investigation with the assistance of third-party professionals. We also notified law enforcement and are supporting its investigation. We have dedicated teams working to quickly and securely restore normal business operations. While we continue to work through this incident, we ask you to keep this information confidential within your organization to assist us in resolving this issue.
+
+At this stage, your support is critical. Please keep this information confidential within your organization and ensure that your organization shares with Sensata your bare product demands for the upcoming days per site and per product. We currently have limited ability to produce certain products in certain manufacturing locations and will work to deliver orders where and when able. In addition, we would kindly request that a clear communication channel is set for Sensata to have visibility to your call-offs/demand outlook.
+
+Your Sensata customer service point of contact will be supporting to ensure best alignment between demand & supply.
+
+Be assured we are doing our utmost to quickly and safely resolve this matter.
+
+Best regards,
+Dan Goncalves
+Vice President and General Manager - Sensata Technologies`
+    };
+
+    const questions = Object.keys(responses);
+    const historyData = [];
+
+    function addMessage(sender, text) {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `<div class="${sender}">${text}</div>`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function logInteraction(question) {
+      const li = document.createElement('li');
+      li.textContent = question;
+      log.appendChild(li);
+      historyData.push(question);
+    }
+
+    function showOptions() {
+      buttons.innerHTML = '';
+      questions.forEach(q => {
+        const btn = document.createElement('button');
+        btn.textContent = q;
+        btn.onclick = () => {
+          addMessage('user', q);
+          addMessage('bot', responses[q]);
+          logInteraction(q);
+        };
+        buttons.appendChild(btn);
+      });
+    }
+
+    function downloadHistory() {
+      const blob = new Blob([historyData.join('\n')], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'chat_history.txt';
+      link.click();
+    }
+
+    downloadBtn.addEventListener('click', downloadHistory);
+
+    // When the company name is submitted
+    submitNameBtn.addEventListener('click', () => {
+      const companyName = companyNameInput.value;
+      if (companyName) {
+        addMessage('user', `Company name: ${companyName}`);
+        addMessage('bot', 'Thank you. Now, please select one of the following frequently asked questions:');
+        showOptions();
+        document.getElementById('history').style.display = 'block'; // Show history only for you
+      } else {
+        addMessage('bot', 'Please enter the company name.');
+      }
+    });
+
+    // Starting the chat
+    addMessage('bot', 'Hello 👋, thank you for contacting us. Could you please provide the name of the client or company you represent?');
+  </script>
+</body>
+</html>
